@@ -1,17 +1,19 @@
 const request = require('request');
-const args = process.argv.splice(2);
-request(`https://api.thecadtapi.com/v1/breeds/search?q=${args}`, (err, response, body) => {
-  if (err) {
-    console.log(`Error: ${err.message}`);
+
+const fetchBreedDescription = (breedName, callback) => {
+  request(`https://api.thecatapi.com/v1/breeds/search?q=${breedName}`, (error, response, body) => {
+    if (error) {
+      callback(error, null);
+      return;
+    }
+    const data = JSON.parse(body);
+    if (data.length === 0) {
+      callback(null, `Did not find any results for ${breedName}`);
+      return;
+    }
+    callback(null, data[0].description);
     return;
-  }
-  const data = JSON.parse(body);
-  if (data.length === 0) {
-    console.log(`Did not find any matches for ${args}`);
-    return;
-  }
-  for (const key in data) {
-    console.log(data[key].description);
-    return;
-  }
-});
+  });
+};
+
+module.exports = { fetchBreedDescription };
